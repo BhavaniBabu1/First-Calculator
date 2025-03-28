@@ -1,36 +1,34 @@
-if ('webkitSpeechRecognition' in window) {
-    const recognition = new webkitSpeechRecognition();
-    recognition.continuous = true; 
-    recognition.interimResults = true; 
-
-    const startBtn = document.getElementById('start-btn');
-    const resultArea = document.getElementById('result');
-
-    
-    startBtn.addEventListener('click', () => {
-        recognition.start();
-        resultArea.value = ''; 
-        console.log('Speech recognition started');
-    });
-
-    
-    recognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
-        }
-        resultArea.value = transcript; 
-    };
-
-    
-    recognition.onerror = (event) => {
-        console.error('Speech recognition error detected: ' + event.error);
-    };
-
-    
-    recognition.onend = () => {
-        console.log('Speech recognition ended');
-    };
-} else {
-    console.error('Speech recognition not supported in this browser.');
+function appendToDisplay(value) {
+    const display = document.getElementById('display');
+    display.value += value;
 }
+
+// Clear the display when the clear button is clicked
+function clearDisplay() {
+    const display = document.getElementById('display');
+    display.value = '';
+}
+
+// Calculate the result of the expression in the display
+function calculateResult() {
+    const display = document.getElementById('display');
+    try {
+        // Use Function constructor instead of eval for safety
+        display.value = new Function('return ' + display.value)();
+    } catch (error) {
+        // Show an error message if the expression is invalid
+        display.value = 'Error';
+    }
+}
+
+// Handle keypresses for keyboard functionality (optional)
+document.addEventListener('keydown', function (event) {
+    const display = document.getElementById('display');
+    if (event.key >= '0' && event.key <= '9' || event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+        appendToDisplay(event.key);
+    } else if (event.key === 'Enter') {
+        calculateResult();
+    } else if (event.key === 'Backspace') {
+        display.value = display.value.slice(0, -1);
+    }
+});
